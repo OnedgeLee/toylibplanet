@@ -61,17 +61,21 @@ namespace Toylibplanet
         // and difficulty can be calculated with timestamps, computing block generation speed
         // So secure timestamp is crucial for blockchain system
 
-        private readonly byte[] _blockHash;
+        public byte[] Nonce { get => _nonce; }
+        public byte[] BlockHash { 
+            get
+            {
+                return HashBlock(Payload(), this._nonce);
+            }
+        }
         // Block hash is used to secure data in its payload
         // and also used for PoW, to secure blockchain consensus
         // Actually, block does not have to have this, and function for computing this is enough
 
-
-        public byte[] Nonce { get => _nonce; }
-        public byte[] BlockHash { get => _blockHash; }
         public byte[] PreviousHash { get => _previousHash; }
         public IState State { get => _state; }
         public IEnumerable<Tx> Transactions { get => _transactions; }
+        public DateTimeOffset Timestamp { get => _timestamp; }
 
         public Block(
             int index,
@@ -89,7 +93,7 @@ namespace Toylibplanet
             this._transactions = transactions.Where(tx => tx.Verify());
             this._timestamp = DateTimeOffset.UtcNow;
             int seed = 0;
-            (this._nonce, this._blockHash) = Solve(Payload(), this._difficulty, seed);
+            this._nonce = Solve(Payload(), this._difficulty, seed);
         }
         public Block(IState initialState)
         // Null block for genesis block
@@ -109,8 +113,10 @@ namespace Toylibplanet
             this._transactions = new List<Tx> { new Tx() };
             this._timestamp = DateTimeOffset.UtcNow;
             int seed = 0;
-            (this._nonce, this._blockHash) = Solve(Payload(), this._difficulty, seed);
+            this._nonce = Solve(Payload(), this._difficulty, seed);
         }
+
+
 
         public byte[] Payload()
         // Actually, serialization is not needed for single-node condition (without network),
@@ -120,8 +126,7 @@ namespace Toylibplanet
         {
             byte[] indexBytes = BitConverter.GetBytes(this._index);
             byte[] difficultyBytes = BitConverter.GetBytes(this._difficulty);
-            byte[] timestampBytes = BitConverter.GetBytes(this._timestamp.Ticks).
-                Concat(BitConverter.GetBytes((Int16)this._timestamp.Offset.TotalMinutes)).ToArray();
+            byte[] timestampBytes = Utility.DateTimeOffsetToBytes(this._timestamp);
             byte[] stateBytes = this._state.Serialize();
             IEnumerable<byte[]> txBytes = from tx in this._transactions select tx.Serialize();
             byte[] txsBytes = new byte[(from txByte in txBytes select txByte.Length).Sum()];
@@ -135,17 +140,17 @@ namespace Toylibplanet
             byte[] payload = indexBytes.Concat(difficultyBytes).
                 Concat(this._rewardBeneficiary).Concat(this._previousHash).
                 Concat(timestampBytes).Concat(stateBytes).Concat(txsBytes).ToArray();
-            // [indexBytes (4byte)] [difficultyBytes (4byte)] [rewardBeneficiary (32byte)]
-            // [previousHash (32byte)] [timestampBytes (4byte)] [stateBytes (?byte)] [txBytes (?byte)]
+            // [indexBytes (4bytes)] [difficultyBytes (4bytes)] [rewardBeneficiary (32bytes)]
+            // [previousHash (32bytes)] [timestampBytes (16bytes)] [stateBytes (?bytes)] [txBytes (?bytes)]
             return payload;
         }
         public byte[] Serialize()
         {
-            return Payload().Concat(this._nonce).Concat(this._blockHash).ToArray();
+            return Payload().Concat(this._nonce).Concat(this.BlockHash).ToArray();
             // Actually, if we don't use message on network, serialization is not needed
         }
 
-        private static (byte[], byte[]) Solve(
+        private static byte[] Solve(
             byte[] payload,
             long difficulty,
             int seed)
@@ -165,7 +170,7 @@ namespace Toylibplanet
 
                 if (Satisfies(blockHash, difficulty))
                 {
-                    return (nonceBytes, blockHash);
+                    return nonceBytes;
                 }
                 // If blockHash matches difficulty, return answer nonce with its blockHash
                 // blockHash is returned along to avoid redundant computation
@@ -219,14 +224,7 @@ namespace Toylibplanet
             // If difficulty of new block is different from difficulty calculated from blockchain,
             // we consider new block has not been mined properly, and does not accept it as new member of blockchain
 
-            byte[] blockHash = HashBlock(Payload(), this._nonce);
-            if (!blockHash.SequenceEqual(this._blockHash))
-            {
-                throw new Exception("Computed block hash is different from recorded block hash");
-            }
-            // Block hash verification with payload and nonce
-
-            if (!Satisfies(blockHash, this._difficulty))
+            if (!Satisfies(this.BlockHash, this._difficulty))
             {
                 throw new Exception("Block hash does not matches difficulty");
             }

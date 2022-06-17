@@ -17,9 +17,8 @@ namespace Toylibplanet.Tests
         {
             TestState state = new();
             Block block = new(state);
-            output.WriteLine(BitConverter.ToString(block.BlockHash).Replace("-", ""));
-            output.WriteLine(block.State.StateInts[0].ToString());
-            output.WriteLine(BitConverter.ToString(block.Transactions.ElementAt(0).Signature).Replace("-", ""));
+            output.WriteLine("Block hash : " + Utility.BytesToHex(block.BlockHash));
+            output.WriteLine("State array : " + string.Join(", ", block.State.StateInts));   
         }
         [Fact]
         public void SampleBlockTest()

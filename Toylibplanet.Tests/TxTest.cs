@@ -16,10 +16,15 @@ namespace Toylibplanet.Tests
         public void NullTxTest()
         {
             Tx tx = new();
-            output.WriteLine(tx.PublicKey.ToString());
-            output.WriteLine(BitConverter.ToString(tx.Signature).Replace("-", ""));
-            string message = "End of NullTxTest";
-            output.WriteLine(message);
+            byte[] nullBytes = new byte[32]; for (int i = 0; i < 32; i++) {nullBytes[i] = 0x01;}
+            PrivateKey nullPrivateKey = new(nullBytes);
+            output.WriteLine("Public Key : " + tx.PublicKey.ToString());
+            output.WriteLine("Private Key : " + Utility.BytesToHex(nullPrivateKey.ToByteArray()));
+            output.WriteLine("Payload : " + Utility.BytesToHex(tx.Payload()));
+            output.WriteLine("Signature : " + Utility.BytesToHex(tx.Signature));
+            output.WriteLine("Verify Transaction");
+            output.WriteLine("\t : "+ tx.Verify()); 
+            output.WriteLine("End of NullTxTest");
         }
         [Fact]
         public void SampleTxTest()
@@ -31,12 +36,13 @@ namespace Toylibplanet.Tests
                 privateKey,
                 publicKey,
                 actions);
-            output.WriteLine(tx.PublicKey.ToString());
-            output.WriteLine(BitConverter.ToString(tx.Signature).Replace("-", ""));
-            output.WriteLine(tx.Actions.ElementAt(0).ActionName);
-            output.WriteLine(tx.PublicKey.Verify(tx.Serialize(), tx.Signature).ToString());
-            string message = "End of SampleTxTest";
-            output.WriteLine(message);
+            output.WriteLine("Public Key : " + tx.PublicKey.ToString());
+            output.WriteLine("Private Key : " + Utility.BytesToHex(privateKey.ToByteArray()));
+            output.WriteLine("Payload : " + Utility.BytesToHex(tx.Payload()));
+            output.WriteLine("Signature : " + Utility.BytesToHex(tx.Signature));
+            output.WriteLine("Verify Transaction");
+            output.WriteLine("\t : " + tx.Verify());
+            output.WriteLine("End of NullTxTest");
         }
     }
 }

@@ -2,7 +2,7 @@ namespace Toylibplanet
 {
     public class BlockChain
     {
-        private readonly Dictionary<byte[], Block> _blocks;
+        private readonly Dictionary<string, Block> _blocks;
         // Hash table of blocks
 
         private readonly Block _genesisBlock;
@@ -11,13 +11,13 @@ namespace Toylibplanet
         private Block _lastBlock;
         // Block that has been mined most recently will added to here
 
-        public Dictionary<byte[], Block> Blocks { get => _blocks; }
+        public Dictionary<string, Block> Blocks { get => _blocks; }
         public Block GenesisBlock { get => _genesisBlock; }
         public Block LastBlock { get => _lastBlock; }
 
         public BlockChain(IState initialState)
         {
-            this._blocks = new Dictionary<byte[], Block>();
+            this._blocks = new Dictionary<string, Block>();
             // When block chain has been estabilished, genesis block will be automatically generated
 
             this._genesisBlock = new Block(initialState);
@@ -29,9 +29,15 @@ namespace Toylibplanet
         public void Append(Block block)
         {
             this._lastBlock = block;
-            this._blocks.Add(block.BlockHash, block);
+            this._blocks.Add(Utility.BytesToHex(block.BlockHash), block);
             // Block will be added to its hash table and latest block cache
         }
+
+        public Block FindBlock(byte[] blockHash)
+        {
+            return this.Blocks[Utility.BytesToHex(blockHash)];
+        }
+
         public void Mine(
             byte[] minerPublicKey,
             IEnumerable<Tx> txs)
@@ -79,10 +85,17 @@ namespace Toylibplanet
 
         public int Difficulty()
         {
-            return 10;
+            if (this._lastBlock.BlockHash.SequenceEqual(this._genesisBlock.BlockHash))
+            {
+                return 10;
+            }
+            TimeSpan miningInterval = this._lastBlock.Timestamp - FindBlock(this._lastBlock.PreviousHash).Timestamp;
+            int miningSeconds = miningInterval.Seconds;
+            return 1 / miningSeconds;
             // Actually, difficulty have to computed with average block generation time
             // Average block generation time can be computed with timestamp in blocks
-            // For convinience, used fixed difficulty, chance to find nonce 1/10 probability
+            // Chance to find a nonce is 1 / difficulty
+            // If mining speed is too fast, raise difficulty to slow down, and vice versa
         }
     }
 }

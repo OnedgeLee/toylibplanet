@@ -76,15 +76,11 @@ namespace Toylibplanet
                 Buffer.BlockCopy(actionByte, 0, actionsBytes, actionsBytesOffset, actionByte.Length);
                 actionsBytesOffset += actionByte.Length;
             }
-
-            byte[] timestampBytes = BitConverter.GetBytes(this._timestamp.Ticks)
-                .Concat(BitConverter.GetBytes((Int16)this._timestamp.Offset.TotalMinutes)).ToArray();
-
+            byte[] timestampBytes = Utility.DateTimeOffsetToBytes(this._timestamp);
             byte[] publicKeyBytesSize = BitConverter.GetBytes(publicKeyBytes.Length);
             byte[] actionsBytesSize = BitConverter.GetBytes(actionsBytes.Length);
-            byte[] timestampBytesSize = BitConverter.GetBytes(timestampBytes.Length);
 
-            byte[] payload = publicKeyBytesSize.Concat(actionsBytesSize).Concat(timestampBytesSize).
+            byte[] payload = publicKeyBytesSize.Concat(actionsBytesSize).
                 Concat(publicKeyBytes).Concat(actionsBytes).Concat(timestampBytes).ToArray();
 
             return payload;
