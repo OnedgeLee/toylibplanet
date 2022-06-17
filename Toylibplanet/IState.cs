@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Toylibplanet
 {
     public abstract class IState : ICloneable
@@ -24,9 +18,9 @@ namespace Toylibplanet
 
             byte[] stateIntBytes = Array.Empty<byte>();
             foreach (int stateInt in this._stateInts)
-	        {
+            {
                 stateIntBytes = stateIntBytes.Concat(BitConverter.GetBytes(stateInt)).ToArray();
-	        }
+            }
             stateIntBytes = BitConverter.GetBytes(stateIntBytes.Length).Concat(stateIntBytes).ToArray();
             return stateIntBytes;
         }

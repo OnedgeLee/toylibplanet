@@ -1,58 +1,65 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Toylibplanet
 {
     public class BlockChain
     {
         private readonly Dictionary<byte[], Block> _blocks;
+        // Hash table of blocks
+
         private readonly Block _genesisBlock;
+        // Genesis block will be maintained separately
+
         private Block _lastBlock;
+        // Block that has been mined most recently will added to here
+
+        public Dictionary<byte[], Block> Blocks { get => _blocks; }
         public Block GenesisBlock { get => _genesisBlock; }
         public Block LastBlock { get => _lastBlock; }
-        public Dictionary<byte[], Block> Blocks { get => _blocks; }
 
         public BlockChain(IState initialState)
         {
             this._blocks = new Dictionary<byte[], Block>();
+            // When block chain has been estabilished, genesis block will be automatically generated
+
             this._genesisBlock = new Block(initialState);
             Append(this._genesisBlock);
             this._lastBlock = this._genesisBlock;
+            // Generated genesis block will be added to block pool
         }
-        
+
         public void Append(Block block)
         {
             this._lastBlock = block;
             this._blocks.Add(block.BlockHash, block);
-        }
-
-        public IState EvaluateActions(IEnumerable<Tx> txs)
-        {
-            IState state = _lastBlock.State.Clone();
-            foreach (Tx tx in txs)
-            {
-                foreach (IAction action in tx.Actions)
-                {
-                    state = action.Execute(state);
-                }
-            }
-            // Get state from last block in block chain, apply all actions in mempool to this state,
-            // generate next state and use it as state in new block to be mined
-            return state;
+            // Block will be added to its hash table and latest block cache
         }
         public void Mine(
             byte[] minerPublicKey,
             IEnumerable<Tx> txs)
         {
             int index = this._blocks.Count;
-            int difficulty = 10;
+            // Block index will be started from 0, and will be added as block mined
+
+            int difficulty = Difficulty();
+            // Difficulty have to be adjusted automatically 
+
             byte[] rewardBeneficiary = minerPublicKey;
+            // Minder will be paid bitcoin as a reward
+
             byte[] previousHash = this._lastBlock.BlockHash;
+            // To track previous block, block hash of previous block will be added to block
+            // And this hash of previous block is also hashed to generate new block hash, we can sure about block sequence
+            // So it can be called 'block chain'
+
             txs = txs.Where(tx => tx.Verify());
-            IState state = EvaluateActions(txs);
+            // Remove transactions that cannot be verified from mempool not to be selected as block candidate
+
+            IState state = Block.EvaluateActions(this._lastBlock.State, txs);
+            // Compute new state with actions in transactions that will be added to block
+            // Actually, it indicates address of state storage, not actual state in libplanet
+            
+            // For detailed implementation, previous state fetching and  state hash computation line will be added here
+            // And will be injected to block instead of actual state, and saved to store with its hash as address
+
             Block block = new(
                 index,
                 difficulty,
@@ -60,7 +67,22 @@ namespace Toylibplanet
                 previousHash,
                 state,
                 txs);
+            // Block will be mined
+
             Append(block);
+            // If block is properly mined, it will be added to blockchain
+            // On detailed implementation, this will be broadcasted with message
+            // And each client peers will verify it, and if it's not valid, won't add it to their blockchain
+            // If most of peers don't add block, block that will be mined later has low chance to include this block
+            // So invalid block will be ignored on whole network
+        }
+
+        public int Difficulty()
+        {
+            return 10;
+            // Actually, difficulty have to computed with average block generation time
+            // Average block generation time can be computed with timestamp in blocks
+            // For convinience, used fixed difficulty, chance to find nonce 1/10 probability
         }
     }
 }

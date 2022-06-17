@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Toylibplanet
 {
@@ -43,14 +39,23 @@ namespace Toylibplanet
             // [actionInfoBytesSize(4byte)] [actionInfoBytes(?byte)]
             return payload;
         }
-        //public IAction Deserialize(byte[] serializedIAction)
-        //{
-        //    int actionNameBytesSize = BitConverter.ToInt32(serializedIAction.Take(4).ToArray());
-        //    string actionName = Encoding.UTF8.GetString(serializedIAction.Skip(4).Take(actionNameBytesSize).ToArray());
-        //    int actionInfoBytesSize = BitConverter.ToInt32(serializedIAction.Skip(4 + actionNameBytesSize).Take(8 + actionNameBytesSize).ToArray());
-        //    string actionInfo = Encoding.UTF8.GetString(serializedIAction.Skip(8 + actionNameBytesSize).Take(8 + actionNameBytesSize + actionInfoBytesSize).ToArray());
-        //    return new IAction(actionName, actionInfo);
-        //}
+
+        // Deserialization on IAction cannot be implemented, since it's abstract interface
+        // I think it's design failure, and this makes whole deserialization impossible
+        // Actually there are some workaround, but they aren't look nice
+        // Better design have to be figured out
+        // Actually, for now deserialization is not needed since I don't use network communication
+        // For now serialization is just used for generating hashes, so deserialization is not so important for this implementation
+        // But have to be implemented for network communcation stage
+
+        // public IAction Deserialize(byte[] serializedIAction)
+        // {
+        //     int actionNameBytesSize = BitConverter.ToInt32(serializedIAction.Take(4).ToArray());
+        //     string actionName = Encoding.UTF8.GetString(serializedIAction.Skip(4).Take(actionNameBytesSize).ToArray());
+        //     int actionInfoBytesSize = BitConverter.ToInt32(serializedIAction.Skip(4 + actionNameBytesSize).Take(8 + actionNameBytesSize).ToArray());
+        //     string actionInfo = Encoding.UTF8.GetString(serializedIAction.Skip(8 + actionNameBytesSize).Take(8 + actionNameBytesSize + actionInfoBytesSize).ToArray());
+        //     return new IAction(actionName, actionInfo);
+        // }
 
         protected abstract string SetActionName();
         public abstract IState Execute(IState state);

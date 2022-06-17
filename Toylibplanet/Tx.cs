@@ -1,18 +1,25 @@
-﻿using System;
-using Libplanet.Crypto;
-using Libplanet.Tx;
+﻿using Libplanet.Crypto;
 using System.Security.Cryptography;
-using System.Linq;
-
 
 namespace Toylibplanet
 {
     public class Tx
     {
         private readonly PublicKey _publicKey;
+        // Public key represents transaction generator
+
         private readonly IEnumerable<IAction> _actions;
+        // Action is core information of transaction to be secured
+
         private readonly DateTimeOffset _timestamp;
+        // Timestamp is used for aligning transactions in sequence
+        // If other purpose exists, please let me know
+
         private readonly byte[] _signature;
+        // Signature is used for verifying transaction
+        // Signature is generated from private key and payload
+        // With signature, we can secure if public key and payload is not currupted
+        // With signature, we can secure if transaction is generated from proper private key
 
         public IEnumerable<IAction> Actions { get => _actions; }
         public PublicKey PublicKey { get => _publicKey; }
@@ -55,6 +62,8 @@ namespace Toylibplanet
                 // txId = SHA256(Tx)
             }
         }
+        // It's just used for hash table of transactions
+        // TxId secures if proper transaction is on proper storage address
 
         public byte[] Payload()
         {
@@ -89,10 +98,11 @@ namespace Toylibplanet
         {
             return privateKey.Sign(Payload());
         }
+        // Generate signature with transaction generator's private key and payload
         public bool Verify()
         {
             return this.PublicKey.Verify(Payload(), this.Signature);
-            // Verify if signature is valid for its public key and payload
         }
+        // Verify if signature is valid for its public key and payload
     }
 }
