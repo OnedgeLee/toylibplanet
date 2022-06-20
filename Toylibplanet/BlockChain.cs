@@ -45,12 +45,13 @@ namespace Toylibplanet
 
         public void Mine(
             byte[] minerPublicKey,
-            IEnumerable<Tx> txs)
+            IEnumerable<Tx> txs,
+            int seed)
         {
             int index = this._blocks.Count;
             // Block index will be started from 0, and will be added as block mined
 
-            int difficulty = Difficulty();
+            long difficulty = Difficulty();
             // Difficulty have to be adjusted automatically 
 
             byte[] rewardBeneficiary = minerPublicKey;
@@ -77,7 +78,8 @@ namespace Toylibplanet
                 rewardBeneficiary,
                 previousHash,
                 state,
-                txs);
+                txs,
+                seed);
             // Block will be mined
 
             Append(block);
@@ -88,11 +90,11 @@ namespace Toylibplanet
             // So invalid block will be ignored on whole network
         }
 
-        public int Difficulty()
+        public long Difficulty()
         {
             if (this._lastBlock.BlockHash.SequenceEqual(this._genesisBlock.BlockHash))
             {
-                return 10;
+                return 1000000000000000000;
             }
             TimeSpan miningInterval = this._lastBlock.Timestamp - FindBlock(this._lastBlock.PreviousHash).Timestamp;
             int miningSeconds = miningInterval.Seconds;

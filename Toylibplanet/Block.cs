@@ -10,7 +10,7 @@ namespace Toylibplanet
         // Actually I think block index is not needed, since we have previous block hash
         // If there are any reason that I couldn't figure out, please tell me
 
-        private readonly int _difficulty;
+        private readonly long _difficulty;
         // Difficulty have to be included on payload, since we have to use it on verification stage
         // Verification is, to verify if computed block hash is lower than difficulty
         // So if this information is missed, we can't know if block hash was generated properly
@@ -55,12 +55,13 @@ namespace Toylibplanet
         // Generating and verifying blocks, transaction verification is also performed
         // So every transaction in blockchain is secure and cannot be currupted
 
-        private readonly DateTimeOffset _timestamp;
+        private readonly byte[] _timestamp;
         // Timestamp have to be included on payload, to secure proper difficulty
         // It's critical to apply fair difficulty mining blocks,
         // and difficulty can be calculated with timestamps, computing block generation speed
         // So secure timestamp is crucial for blockchain system
 
+        public long Difficulty { get => _difficulty; }
         public byte[] Nonce { get => _nonce; }
         public byte[] BlockHash { 
             get
@@ -75,15 +76,16 @@ namespace Toylibplanet
         public byte[] PreviousHash { get => _previousHash; }
         public IState State { get => _state; }
         public IEnumerable<Tx> Transactions { get => _transactions; }
-        public DateTimeOffset Timestamp { get => _timestamp; }
+        public DateTimeOffset Timestamp { get => Utility.BytesToDateTimeOffset(_timestamp); }
 
         public Block(
             int index,
-            int difficulty,
+            long difficulty,
             byte[] rewardBeneficiary,
             byte[] previousHash,
             IState state,
-            IEnumerable<Tx> transactions)
+            IEnumerable<Tx> transactions,
+            int seed)
         {
             this._index = index;
             this._difficulty = difficulty;
@@ -91,8 +93,7 @@ namespace Toylibplanet
             this._previousHash = previousHash;
             this._state = state.Clone();
             this._transactions = transactions.Where(tx => tx.Verify());
-            this._timestamp = DateTimeOffset.UtcNow;
-            int seed = 0;
+            this._timestamp = Utility.DateTimeOffsetToBytes(DateTimeOffset.UtcNow);
             this._nonce = Solve(Payload(), this._difficulty, seed);
         }
         public Block(IState initialState)
@@ -111,7 +112,7 @@ namespace Toylibplanet
             Array.Clear(this._previousHash, 0, 256);
             this._state = initialState.Clone();
             this._transactions = new List<Tx> { new Tx() };
-            this._timestamp = DateTimeOffset.UtcNow;
+            this._timestamp = Utility.DateTimeOffsetToBytes(DateTimeOffset.UtcNow);
             int seed = 0;
             this._nonce = Solve(Payload(), this._difficulty, seed);
         }
@@ -126,7 +127,7 @@ namespace Toylibplanet
         {
             byte[] indexBytes = BitConverter.GetBytes(this._index);
             byte[] difficultyBytes = BitConverter.GetBytes(this._difficulty);
-            byte[] timestampBytes = Utility.DateTimeOffsetToBytes(this._timestamp);
+            byte[] timestampBytes = this._timestamp;//Utility.DateTimeOffsetToBytes(this._timestamp);
             byte[] stateBytes = this._state.Serialize();
             IEnumerable<byte[]> txBytes = from tx in this._transactions select tx.Serialize();
             byte[] txsBytes = new byte[(from txByte in txBytes select txByte.Length).Sum()];
@@ -208,7 +209,7 @@ namespace Toylibplanet
             return blockHashNumber < target;
             // If blockHashNumber is a number less than target, it's satisfied
         }
-        public void Verify(IState previousState, int difficulty)
+        public void Verify(IState previousState, long difficulty)
         {
             // This verification will be conducted by peers that recieved new mined block message
             // Before they add new block to their blockchain, they will verify the block

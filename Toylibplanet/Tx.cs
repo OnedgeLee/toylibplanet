@@ -67,7 +67,7 @@ namespace Toylibplanet
 
         public byte[] Payload()
         {
-            byte[] publicKeyBytes = this._publicKey.Format(true);
+            byte[] publicKeyBytes = this._publicKey.Format(false);
             IEnumerable<byte[]> actionBytes = from action in this._actions select action.Serialize();
             byte[] actionsBytes = new byte[(from actionByte in actionBytes select actionByte.Length).Sum()];
             int actionsBytesOffset = 0;

@@ -48,9 +48,10 @@ namespace Toylibplanet.Tests
             output.WriteLine("Transactions has been gathered on mempool");
             // Transactions will be gathered
 
-            blockChain.Mine(publicKey.Format(true), transactions);
+            blockChain.Mine(publicKey.Format(false), transactions, 0);
             output.WriteLine("Miner mined block with transactions on mempool, and added to blockchain");
             // Miner will mine with gathered transactions
+            // With last mining parameter seed, can be used for multiple machine situation
 
             output.WriteLine("Client will recieve message of updated blockchain");
             state = action1.Execute(state);
@@ -76,6 +77,9 @@ namespace Toylibplanet.Tests
             // Check if previous block is genesis block
             // Since single transaction has been added to genesis block, it have to be same
 
+            output.WriteLine("Checking milisecond timediff between new block and previous block");
+            output.WriteLine("\t : " + (blockChain.LastBlock.Timestamp - previousBlock.Timestamp).TotalMilliseconds.ToString()) ;
+
             output.WriteLine("Checking if last block is valid");
             bool lastBlockTest = false;
             try
@@ -84,6 +88,8 @@ namespace Toylibplanet.Tests
                 IState lastState = previousBlock.State;
                 blockChain.Pop();
                 lastBlock.Verify(lastState, blockChain.Difficulty());
+                //output.WriteLine(blockChain.Difficulty().ToString());
+                //output.WriteLine(lastBlock.Difficulty.ToString());
                 output.WriteLine("\t : Last block is valid");
                 output.WriteLine("\t => Block difficulty is same as difficulty that calculated from the blockchain");
                 output.WriteLine("\t => Block hash matches difficulty");

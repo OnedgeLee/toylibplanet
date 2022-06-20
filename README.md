@@ -19,13 +19,17 @@ Toylibplanet
   - It's seems to be easy to save serialized instances to storage, if not on distributed condition
 - IAction and IStates are not actually interfaces
   - I've misunderstood about interface, and implemented them as abstract classes
-- Time problem
-  - Found timestamp is not working as I expected
-  - May be TimeStampOffset.Now does not generate actual timestamp
-  - Can be fixed just saving not instance, but its ticks
+- Difficulty problem
+  - Even though I raise difficulty (to long 1000000000000000000), testing time does not increases
+  - Tested hash size, maximum target value, difficulty, but still couldn't find the reason
 
 ## Paid attention to
 
 - Why libplanet is made like that
   - On verification stage, what is needed and what is not
   - Which informations are need to be hashed, and why
+
+## How to test functionalities
+
+- `Toylibplanet.Tests.ClientScenarioTest` contains scenario test assume simplified situation
+- With this test, can run toylibplanet on single-node condition, and figure out if functions are working properly

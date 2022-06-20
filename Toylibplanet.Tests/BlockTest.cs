@@ -41,7 +41,7 @@ namespace Toylibplanet.Tests
                 publicKey,
                 actions);
             IEnumerable<Tx> transactions = new List<Tx> { tx };
-            Block sampleBlock = new(index, difficulty, rewardBeneficiary, previousHash, state, transactions);
+            Block sampleBlock = new(index, difficulty, rewardBeneficiary, previousHash, state, transactions, 0);
             output.WriteLine(BitConverter.ToString(sampleBlock.BlockHash).Replace("-", ""));
             output.WriteLine(BitConverter.ToString(sampleBlock.Transactions.ElementAt(0).Signature).Replace("-", ""));
 
@@ -62,6 +62,7 @@ namespace Toylibplanet.Tests
             sampleBlock.Verify(state_original, difficulty);
             Assert.True(blockVerifyTest);
             output.WriteLine("End of sample block test");
+            Assert.True(sampleBlock.BlockHash.Length == 32);
         }
 
     }
