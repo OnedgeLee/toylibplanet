@@ -94,7 +94,7 @@ namespace Toylibplanet
         {
             if (this._lastBlock.BlockHash.SequenceEqual(this._genesisBlock.BlockHash))
             {
-                return 1000000000000000000;
+                return 100;
             }
             TimeSpan miningInterval = this._lastBlock.Timestamp - FindBlock(this._lastBlock.PreviousHash).Timestamp;
             int miningSeconds = miningInterval.Seconds;

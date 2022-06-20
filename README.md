@@ -7,7 +7,6 @@ Toylibplanet
   - `Libplanet.Crypto.PrivateKey`
   - `Libplanet.Crypto.PublicKey`
 
-
 ## Lacked
 
 - Deserialization is not supported
@@ -19,9 +18,6 @@ Toylibplanet
   - It's seems to be easy to save serialized instances to storage, if not on distributed condition
 - IAction and IStates are not actually interfaces
   - I've misunderstood about interface, and implemented them as abstract classes
-- Difficulty problem
-  - Even though I raise difficulty (to long 1000000000000000000), testing time does not increases
-  - Tested hash size, maximum target value, difficulty, but still couldn't find the reason
 
 ## Paid attention to
 

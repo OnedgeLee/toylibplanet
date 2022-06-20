@@ -151,7 +151,7 @@ namespace Toylibplanet
             // Actually, if we don't use message on network, serialization is not needed
         }
 
-        private static byte[] Solve(
+        public static byte[] Solve(
             byte[] payload,
             long difficulty,
             int seed)
@@ -194,7 +194,10 @@ namespace Toylibplanet
             // 2^256 exceeds the range of 64 bit, so cannot be interpreted by long
             // So, used BigInteger
 
-            BigInteger blockHashNumber = new(blockHash);
+            byte[] copiedBlockHash = new byte[32];
+            Array.Copy(blockHash, copiedBlockHash, 32);
+            copiedBlockHash[31] = 0;
+            BigInteger blockHashNumber = new(copiedBlockHash);
             // Cast 32byte byte[] of blockHash into BigInteger
 
             byte[] maxTargetBytes = new byte[33];
