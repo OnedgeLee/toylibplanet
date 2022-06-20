@@ -1,4 +1,6 @@
-﻿namespace Toylibplanet
+﻿using System.Text;
+
+namespace Toylibplanet
 {
     public class Utility
     {
@@ -15,6 +17,22 @@
         {
             return new DateTimeOffset(BitConverter.ToInt64(timestampByte.Take(8).ToArray()), new TimeSpan(BitConverter.ToInt64(timestampByte.Skip(8).ToArray())));
             // Front 8 bytes are timestamp tick, later 8 bytes are offset tick
+        }
+        public static byte[] IntToBytes(Int32 integer)
+        { 
+            return BitConverter.GetBytes(integer).ToArray(); 
+        }
+        public static Int32 BytesToInt(byte[] bytes)
+        { 
+            return BitConverter.ToInt32(bytes, 0); 
+        }
+        public static byte[] StringToBytes(String str)
+        { 
+            return Encoding.Unicode.GetBytes(str); 
+        }
+        public static string BytesToString(byte[] bytes)
+        { 
+            return Encoding.Unicode.GetString(bytes); 
         }
     }
 }

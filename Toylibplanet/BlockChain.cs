@@ -11,6 +11,11 @@ namespace Toylibplanet
         private Block _lastBlock;
         // Block that has been mined most recently will added to here
 
+        public void Pop()
+        {
+            _lastBlock = FindBlock(_lastBlock.PreviousHash);
+        }
+
         public Dictionary<string, Block> Blocks { get => _blocks; }
         public Block GenesisBlock { get => _genesisBlock; }
         public Block LastBlock { get => _lastBlock; }

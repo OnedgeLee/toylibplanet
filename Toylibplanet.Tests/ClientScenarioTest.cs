@@ -60,31 +60,49 @@ namespace Toylibplanet.Tests
             // User will apply action to his state
 
             output.WriteLine("Checking if transitioned state in block is same as in user client");
-            output.WriteLine("\t : " + state.StateInts.SequenceEqual(blockChain.LastBlock.State.StateInts).ToString());
+            bool stateTransitionTest = state.StateInts.SequenceEqual(blockChain.LastBlock.State.StateInts);
+            
+            output.WriteLine("\t : " + stateTransitionTest.ToString());
+            Assert.True(stateTransitionTest);
             // Check if transitioned state in block is same as state applied to user client
 
             output.WriteLine("Checking if previous block of last block in 1 block added chain is genesis block");
             Block previousBlock = blockChain.Blocks[Utility.BytesToHex(blockChain.LastBlock.PreviousHash)];
             Block genesisBlock = blockChain.GenesisBlock;
-            output.WriteLine("\t : " + (Utility.BytesToHex(previousBlock.BlockHash) == Utility.BytesToHex(genesisBlock.BlockHash)).ToString());
+            bool blockSequenceTest = (Utility.BytesToHex(previousBlock.BlockHash) == Utility.BytesToHex(genesisBlock.BlockHash));
+            
+            output.WriteLine("\t : " + blockSequenceTest.ToString());
+            Assert.True(blockSequenceTest);
             // Check if previous block is genesis block
             // Since single transaction has been added to genesis block, it have to be same
 
             output.WriteLine("Checking if last block is valid");
+            bool lastBlockTest = false;
             try
             {
-                blockChain.LastBlock.Verify(previousBlock.State, blockChain.Difficulty());
+                Block lastBlock = blockChain.LastBlock;
+                IState lastState = previousBlock.State;
+                blockChain.Pop();
+                lastBlock.Verify(lastState, blockChain.Difficulty());
                 output.WriteLine("\t : Last block is valid");
                 output.WriteLine("\t => Block difficulty is same as difficulty that calculated from the blockchain");
                 output.WriteLine("\t => Block hash matches difficulty");
                 output.WriteLine("\t => All signatures in transactions are valid");
                 output.WriteLine("\t => Evaluated state(from previous block state) is same as last block state");
+                // Since serialization is not supported yet, workaround applied
+                // Suppose verifying user is a user whose blockchain is 1 block before
+                // Generated this user condition popping out last block
+
+                lastBlockTest = true;
             }
             catch
             {
                 output.WriteLine("\tLast block is not valid");
             }
             // Verify last block
+
+            Assert.True(lastBlockTest);
+
             output.WriteLine("End of scenario test");
         }
     }

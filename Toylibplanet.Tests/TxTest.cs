@@ -23,7 +23,9 @@ namespace Toylibplanet.Tests
             output.WriteLine("Payload : " + Utility.BytesToHex(tx.Payload()));
             output.WriteLine("Signature : " + Utility.BytesToHex(tx.Signature));
             output.WriteLine("Verify Transaction");
-            output.WriteLine("\t : "+ tx.Verify()); 
+            bool txVerifyTest = tx.Verify();
+            output.WriteLine("\t : " + txVerifyTest);
+            Assert.True(txVerifyTest);
             output.WriteLine("End of NullTxTest");
         }
         [Fact]
@@ -41,8 +43,10 @@ namespace Toylibplanet.Tests
             output.WriteLine("Payload : " + Utility.BytesToHex(tx.Payload()));
             output.WriteLine("Signature : " + Utility.BytesToHex(tx.Signature));
             output.WriteLine("Verify Transaction");
-            output.WriteLine("\t : " + tx.Verify());
-            output.WriteLine("End of NullTxTest");
+            bool txVerifyTest = tx.Verify();
+            output.WriteLine("\t : " + txVerifyTest);
+            Assert.True(txVerifyTest);
+            output.WriteLine("End of SampleTxTest");
         }
     }
 }

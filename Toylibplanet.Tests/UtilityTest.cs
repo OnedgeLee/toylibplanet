@@ -21,7 +21,9 @@ namespace Toylibplanet.Tests
             DateTimeOffset restoredTimeStamp = Utility.BytesToDateTimeOffset(timestampBytes);
             output.WriteLine("Restored timestamp : " + restoredTimeStamp.ToString());
             output.WriteLine("Check if restored time is same as original");
-            output.WriteLine("\t : " + (timestamp == restoredTimeStamp).ToString());
+            bool timeRestoreTest = (timestamp == restoredTimeStamp);
+            output.WriteLine("\t : " + timeRestoreTest.ToString());
+            Assert.True(timeRestoreTest);
         }
     }
 }
